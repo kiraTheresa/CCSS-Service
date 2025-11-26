@@ -1,0 +1,361 @@
+openapi: 3.0.3
+info:
+  title: Catalog Service API
+  description: Course Catalog Service provides RESTful APIs for managing course information
+  version: 1.0.0
+  contact:
+    name: Developer
+    email: developer@example.com
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+paths:
+  /api/courses:
+    get:
+      summary: Get all courses
+      description: Retrieve a list of all courses in the catalog
+      tags:
+        - Courses
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    post:
+      summary: Create a new course
+      description: Create a new course in the catalog
+      tags:
+        - Courses
+      requestBody:
+        description: Course object to be created
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Course'
+      responses:
+        '201':
+          description: Course created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/courses/{id}:
+    get:
+      summary: Get course by ID
+      description: Retrieve a specific course by its UUID
+      tags:
+        - Courses
+      parameters:
+        - name: id
+          in: path
+          description: UUID of the course to retrieve
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    put:
+      summary: Update course
+      description: Update an existing course by its UUID
+      tags:
+        - Courses
+      parameters:
+        - name: id
+          in: path
+          description: UUID of the course to update
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Updated course object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Course'
+      responses:
+        '200':
+          description: Course updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    delete:
+      summary: Delete course
+      description: Delete a course by its UUID
+      tags:
+        - Courses
+      parameters:
+        - name: id
+          in: path
+          description: UUID of the course to delete
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Course deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/courses/code/{code}:
+    get:
+      summary: Get course by code
+      description: Retrieve a course by its unique code
+      tags:
+        - Courses
+      parameters:
+        - name: code
+          in: path
+          description: Code of the course to retrieve
+          required: true
+          schema:
+            type: string
+            maxLength: 20
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: Course not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/courses/instructor/{instructorId}:
+    get:
+      summary: Get courses by instructor
+      description: Retrieve all courses taught by a specific instructor
+      tags:
+        - Courses
+      parameters:
+        - name: instructorId
+          in: path
+          description: ID of the instructor
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Invalid instructor ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/courses/search:
+    get:
+      summary: Search courses by title
+      description: Search for courses by title keyword
+      tags:
+        - Courses
+      parameters:
+        - name: keyword
+          in: query
+          description: Search term for course titles
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Invalid search keyword
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+components:
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          description: HTTP status code
+          example: 200
+        message:
+          type: string
+          description: Response message
+          example: "Success"
+        data:
+          oneOf:
+            - $ref: '#/components/schemas/Course'
+            - type: array
+              items:
+                $ref: '#/components/schemas/Course'
+            - type: null
+
+    Course:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        code:
+          type: string
+          description: Course code (e.g., "CS101")
+          maxLength: 20
+          example: "CS101"
+        title:
+          type: string
+          description: Course title
+          maxLength: 100
+          example: "计算机科学导论"
+        instructorId:
+          type: string
+          description: Instructor's ID
+          example: "INS001"
+        scheduleId:
+          type: string
+          description: Schedule slot ID
+          example: "SCH001"
+        capacity:
+          type: integer
+          description: Maximum enrollment capacity
+          minimum: 1
+          maximum: 500
+          example: 50
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+          example: "2024-01-01T12:00:00"
+        enrolled:
+          type: integer
+          description: Current number of enrolled students
+          minimum: 0
+          example: 0
+        description:
+          type: string
+          description: Course description
+          maxLength: 1000
+          example: "计算机科学入门课程"
+        credits:
+          type: integer
+          description: Course credits
+          minimum: 0
+          maximum: 10
+          example: 3
+        location:
+          type: string
+          description: Course location
+          maxLength: 200
+          example: "教室101"
+      required:
+        - code
+        - title
+        - instructorId
+        - scheduleId
+        - capacity
