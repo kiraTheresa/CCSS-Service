@@ -1,2 +1,6 @@
 /.idea/
-/单体应用-ReadOnly/
+/.vscode/
+/1单体应用-ReadOnly/
+/out/
+/catalog-service/target/
+/enrollment-service/target/
