@@ -1,9 +1,9 @@
 package com.zjgsu.ms.hxy.catalog.model;
 
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import org.hibernate.annotations.CreationTimestamp;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 

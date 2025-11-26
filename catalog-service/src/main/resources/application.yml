@@ -1,0 +1,20 @@
+# application.yml
+server:
+  port: 8081
+
+spring:
+  application:
+    name: catalog-service
+
+  profiles:
+    active: dev   # 默认开发环境，可被 --spring.profiles.active 覆盖
+
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+logging:
+  level:
+    root: INFO
