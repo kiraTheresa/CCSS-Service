@@ -144,17 +144,17 @@ public class StudentService {
     /**
      * 删除学生（检查选课记录）
      * @param id 学生ID
-     * @throws IllegalArgumentException 如果学生存在选课记录或学生不存在
+     * @throws ResourceNotFoundException 如果学生不存在
+     * @throws BusinessException 如果学生存在选课记录
      */
     @Transactional
     public void deleteStudent(UUID id) {
         if (!studentRepository.existsById(id)) {
-//            throw new ResourceNotFoundException("学生不存在，ID: " + id);
+            throw new ResourceNotFoundException("学生", id.toString());
         }
 
         if (hasActiveEnrollments(id)) {
-            // todo
-//            throw new BusinessException("无法删除：该学生存在选课记录");
+            throw new BusinessException("无法删除：该学生存在选课记录");
         }
 
         // Spring Data JPA的deleteById方法返回void
