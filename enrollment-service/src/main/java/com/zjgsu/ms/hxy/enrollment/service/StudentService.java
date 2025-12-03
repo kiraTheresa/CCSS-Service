@@ -1,10 +1,12 @@
 package com.zjgsu.ms.hxy.enrollment.service;
 
+import com.zjgsu.ms.hxy.enrollment.exception.BusinessException;
+import com.zjgsu.ms.hxy.enrollment.exception.ResourceNotFoundException;
 import com.zjgsu.ms.hxy.enrollment.model.Enrollment;
 import com.zjgsu.ms.hxy.enrollment.model.EnrollmentStatus;
 import com.zjgsu.ms.hxy.enrollment.model.Student;
 import com.zjgsu.ms.hxy.enrollment.repository.StudentRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -26,15 +28,14 @@ import java.util.regex.Pattern;
 public class StudentService {
 
     private final StudentRepository studentRepository;
-
-    @Autowired
-    private EnrollmentService enrollmentService;
+    private final EnrollmentService enrollmentService;
 
     // 邮箱正则表达式
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$");
 
-    public StudentService(StudentRepository studentRepository) {
+    public StudentService(StudentRepository studentRepository, @Lazy EnrollmentService enrollmentService) {
         this.studentRepository = studentRepository;
+        this.enrollmentService = enrollmentService;
     }
 
     /**
