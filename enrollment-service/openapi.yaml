@@ -1,0 +1,454 @@
+openapi: 3.0.3
+info:
+  title: Enrollment Service API
+  description: Enrollment Service provides RESTful APIs for managing student information and course enrollments
+  version: 1.0.0
+  contact:
+    name: Developer
+    email: developer@example.com
+
+servers:
+  - url: http://localhost:8082
+    description: Local development server
+
+paths:
+  # Student Management APIs
+  /api/students:
+    get:
+      summary: Get all students
+      description: Retrieve a list of all students in the system
+      tags:
+        - Students
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    post:
+      summary: Create a new student
+      description: Create a new student in the system
+      tags:
+        - Students
+      requestBody:
+        description: Student object to be created
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Student'
+      responses:
+        '201':
+          description: Student created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/students/{id}:
+    get:
+      summary: Get student by ID
+      description: Retrieve a specific student by its UUID
+      tags:
+        - Students
+      parameters:
+        - name: id
+          in: path
+          description: UUID of the student to retrieve
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: Student not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    put:
+      summary: Update student
+      description: Update an existing student by its UUID
+      tags:
+        - Students
+      parameters:
+        - name: id
+          in: path
+          description: UUID of the student to update
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Updated student object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Student'
+      responses:
+        '200':
+          description: Student updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: Student not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    delete:
+      summary: Delete student
+      description: Delete a student by its UUID
+      tags:
+        - Students
+      parameters:
+        - name: id
+          in: path
+          description: UUID of the student to delete
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Student deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: Student not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  # Enrollment Management APIs
+  /api/enrollments:
+    get:
+      summary: Get all enrollments
+      description: Retrieve a list of all course enrollments
+      tags:
+        - Enrollments
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    post:
+      summary: Create a new enrollment
+      description: Enroll a student in a course
+      tags:
+        - Enrollments
+      requestBody:
+        description: Enrollment object to be created
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrollmentRequest'
+      responses:
+        '201':
+          description: Enrollment created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Invalid input or business rule violation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/enrollments/{id}:
+    delete:
+      summary: Delete enrollment
+      description: Withdraw a student from a course by enrollment ID
+      tags:
+        - Enrollments
+      parameters:
+        - name: id
+          in: path
+          description: UUID of the enrollment to delete
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Enrollment deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: Enrollment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/enrollments/course/{courseId}:
+    get:
+      summary: Get enrollments by course
+      description: Retrieve all enrollments for a specific course
+      tags:
+        - Enrollments
+      parameters:
+        - name: courseId
+          in: path
+          description: ID of the course to retrieve enrollments for
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Invalid course ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/enrollments/student/{studentId}:
+    get:
+      summary: Get enrollments by student
+      description: Retrieve all enrollments for a specific student
+      tags:
+        - Enrollments
+      parameters:
+        - name: studentId
+          in: path
+          description: ID of the student to retrieve enrollments for
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: Invalid student ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+components:
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          description: HTTP status code
+          example: 200
+        message:
+          type: string
+          description: Response message
+          example: "Success"
+        data:
+          oneOf:
+            - $ref: '#/components/schemas/Student'
+            - type: array
+              items:
+                $ref: '#/components/schemas/Student'
+            - $ref: '#/components/schemas/Enrollment'
+            - type: array
+              items:
+                $ref: '#/components/schemas/Enrollment'
+            - type: null
+
+    Student:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        studentId:
+          type: string
+          description: Student ID (e.g., "2024001")
+          maxLength: 20
+          example: "2024001"
+        name:
+          type: string
+          description: Student name
+          maxLength: 50
+          example: "张三"
+        major:
+          type: string
+          description: Student major
+          maxLength: 100
+          example: "计算机科学"
+        grade:
+          type: integer
+          description: Student grade
+          minimum: 2000
+          maximum: 2100
+          example: 2024
+        email:
+          type: string
+          format: email
+          description: Student email address
+          maxLength: 100
+          example: "zhangsan@example.com"
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+          example: "2024-01-01T12:00:00"
+      required:
+        - studentId
+        - name
+        - major
+        - grade
+        - email
+
+    Enrollment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        courseId:
+          type: string
+          description: Course ID
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        studentId:
+          type: string
+          description: Student ID
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        status:
+          type: string
+          description: Enrollment status
+          enum:
+            - ENROLLED
+            - WITHDRAWN
+            - COMPLETED
+          example: "ENROLLED"
+        enrolledAt:
+          type: string
+          format: date-time
+          description: Enrollment timestamp
+          example: "2024-01-01T12:00:00"
+        grade:
+          type: number
+          description: Student grade (optional)
+          minimum: 0
+          maximum: 100
+          example: 85.5
+      required:
+        - courseId
+        - studentId
+
+    EnrollmentRequest:
+      type: object
+      properties:
+        courseId:
+          type: string
+          description: Course ID
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        studentId:
+          type: string
+          description: Student ID
+          example: "2024001"
+      required:
+        - courseId
+        - studentId

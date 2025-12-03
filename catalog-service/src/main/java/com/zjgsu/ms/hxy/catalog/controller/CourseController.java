@@ -127,9 +127,18 @@ public class CourseController {
      * @return 更新后的课程
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateCourse(@PathVariable UUID id, @RequestBody Course course) {
+    public ResponseEntity<Map<String, Object>> updateCourse(@PathVariable UUID id, @RequestBody Map<String, Object> courseUpdate) {
         try {
-            return courseService.updateCourse(id, course)
+            // 尝试从请求体中获取 data 字段
+            Map<String, Object> courseData;
+            if (courseUpdate.containsKey("data") && courseUpdate.get("data") instanceof Map) {
+                courseData = (Map<String, Object>) courseUpdate.get("data");
+            } else {
+                courseData = courseUpdate;
+            }
+            
+            // 使用部分更新方法更新课程
+            return courseService.partialUpdateCourse(id, courseData)
                     .map(updatedCourse -> {
                         Map<String, Object> response = new HashMap<>();
                         response.put("code", 200);

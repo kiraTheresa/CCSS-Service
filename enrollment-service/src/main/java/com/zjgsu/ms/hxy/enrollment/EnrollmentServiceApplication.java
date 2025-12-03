@@ -69,13 +69,16 @@ public class EnrollmentServiceApplication {
      */
     private void enrollSafely(String courseCode, String studentId, RestTemplate restTemplate) {
         try {
-            String url = "http://localhost:8081/courses/" + courseCode;
-
-            // 远程获取课程，若不存在会抛异常
-            var course = restTemplate.getForObject(url, Object.class);
-
-            if (course != null) {
-                enrollmentService.enrollCourseByCode(courseCode, studentId);
+            // 首先通过课程代码获取课程ID
+            String courseUrl = "http://localhost:8081/api/courses/code/" + courseCode;
+            var courseResponse = restTemplate.getForObject(courseUrl, java.util.Map.class);
+            
+            if (courseResponse != null) {
+                var courseData = (java.util.Map<String, Object>) courseResponse.get("data");
+                String courseId = courseData.get("id").toString();
+                
+                // 使用课程ID进行选课
+                enrollmentService.enrollCourse(courseId, studentId);
                 System.out.println("学生 " + studentId + " 成功选课: " + courseCode);
             }
         } catch (Exception e) {
