@@ -1,9 +1,9 @@
 package com.zjgsu.ms.hxy.enrollment.service;
 
-import com.zjgsu.ms.hxy.catalog.exception.ResourceNotFoundException;
 import com.zjgsu.ms.hxy.enrollment.model.Enrollment;
 import com.zjgsu.ms.hxy.enrollment.model.EnrollmentStatus;
 import com.zjgsu.ms.hxy.enrollment.model.Student;
+import com.zjgsu.ms.hxy.enrollment.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -148,11 +148,12 @@ public class StudentService {
     @Transactional
     public void deleteStudent(UUID id) {
         if (!studentRepository.existsById(id)) {
-            throw new ResourceNotFoundException("学生不存在，ID: " + id);
+//            throw new ResourceNotFoundException("学生不存在，ID: " + id);
         }
 
         if (hasActiveEnrollments(id)) {
-            throw new BusinessException("无法删除：该学生存在选课记录");
+            // todo
+//            throw new BusinessException("无法删除：该学生存在选课记录");
         }
 
         // Spring Data JPA的deleteById方法返回void
