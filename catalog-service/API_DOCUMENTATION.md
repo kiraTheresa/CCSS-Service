@@ -4,7 +4,7 @@
 The Catalog Service provides RESTful APIs for managing course information in the Course Catalog System. It allows clients to create, read, update, and delete courses, as well as search and filter courses based on various criteria.
 
 ## Base URL
-`http://localhost:8080/api/courses`
+`http://localhost:8081/api/courses`
 
 ## Authentication
 Currently, no authentication is required for accessing the Catalog Service APIs.
