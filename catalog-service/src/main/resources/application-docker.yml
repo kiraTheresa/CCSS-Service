@@ -1,0 +1,23 @@
+# Docker环境配置
+server:
+  port: 8081
+
+spring:
+  application:
+    name: catalog-service
+  
+  # 数据源配置，使用环境变量
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/catalog_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+    username: ${DB_USERNAME:ms_catalog_user}
+    password: ${DB_PASSWORD:123}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  # JPA 配置
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
