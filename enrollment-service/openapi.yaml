@@ -1,44 +1,87 @@
 openapi: 3.0.3
 info:
-  title: Enrollment Service API
-  description: Enrollment Service provides RESTful APIs for managing student information and course enrollments
+  title: 选课服务API
+  description: 选课服务提供学生信息管理和课程选课的 RESTful API 接口
   version: 1.0.0
   contact:
-    name: Developer
+    name: 开发者
     email: developer@example.com
 
 servers:
   - url: http://localhost:8082
-    description: Local development server
+    description: 本地开发服务器
 
 paths:
-  # Student Management APIs
-  /api/students:
+  # 健康检查 API
+  /health:
     get:
-      summary: Get all students
-      description: Retrieve a list of all students in the system
+      summary: 基本健康检查
+      description: 获取服务健康状态
       tags:
-        - Students
+        - 健康检查
       responses:
         '200':
-          description: Successful operation
+          description: 服务健康状态
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: 服务状态
+                    example: "UP"
+                  service: "catalog-service"
+                  timestamp: 服务响应时间戳
+
+  /health/detailed:
+    get:
+      summary: 详细健康检查
+      description: 获取服务详细健康信息
+      tags:
+        - 健康检查
+      responses:
+        '200':
+          description: 服务详细健康信息
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: "UP"
+                  service: "catalog-service"
+                  timestamp: 服务响应时间戳
+                  version: "1.0.0"
+                  description: "课程目录服务，提供课程管理功能"
+                  endpoints: 服务端点信息
+
+  # 学生管理 API
+  /api/students:
+    get:
+      summary: 查询所有学生
+      description: 获取系统中所有学生的列表
+      tags:
+        - 学生管理
+      responses:
+        '200':
+          description: 查询成功
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '500':
-          description: Internal server error
+          description: 服务器内部错误
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
     post:
-      summary: Create a new student
-      description: Create a new student in the system
+      summary: 创建新学生
+      description: 在系统中创建一个新学生
       tags:
-        - Students
+        - 学生管理
       requestBody:
-        description: Student object to be created
+        description: 要创建的学生对象
         required: true
         content:
           application/json:
@@ -46,19 +89,19 @@ paths:
               $ref: '#/components/schemas/Student'
       responses:
         '201':
-          description: Student created successfully
+          description: 学生创建成功
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '400':
-          description: Invalid input
+          description: 无效的输入数据
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '500':
-          description: Internal server error
+          description: 服务器内部错误
           content:
             application/json:
               schema:
@@ -66,52 +109,52 @@ paths:
 
   /api/students/{id}:
     get:
-      summary: Get student by ID
-      description: Retrieve a specific student by its UUID
+      summary: 根据ID查询学生
+      description: 根据学生的UUID查询特定学生
       tags:
-        - Students
+        - 学生管理
       parameters:
         - name: id
           in: path
-          description: UUID of the student to retrieve
+          description: 要查询的学生UUID
           required: true
           schema:
             type: string
             format: uuid
       responses:
         '200':
-          description: Successful operation
+          description: 查询成功
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '404':
-          description: Student not found
+          description: 学生不存在
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '500':
-          description: Internal server error
+          description: 服务器内部错误
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
     put:
-      summary: Update student
-      description: Update an existing student by its UUID
+      summary: 更新学生信息
+      description: 根据学生的UUID更新现有学生
       tags:
-        - Students
+        - 学生管理
       parameters:
         - name: id
           in: path
-          description: UUID of the student to update
+          description: 要更新的学生UUID
           required: true
           schema:
             type: string
             format: uuid
       requestBody:
-        description: Updated student object
+        description: 更新后的学生对象
         required: true
         content:
           application/json:
@@ -119,89 +162,89 @@ paths:
               $ref: '#/components/schemas/Student'
       responses:
         '200':
-          description: Student updated successfully
+          description: 学生信息更新成功
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '400':
-          description: Invalid input
+          description: 无效的输入数据
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '404':
-          description: Student not found
+          description: 学生不存在
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '500':
-          description: Internal server error
+          description: 服务器内部错误
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
     delete:
-      summary: Delete student
-      description: Delete a student by its UUID
+      summary: 删除学生
+      description: 根据学生的UUID删除学生
       tags:
-        - Students
+        - 学生管理
       parameters:
         - name: id
           in: path
-          description: UUID of the student to delete
+          description: 要删除的学生UUID
           required: true
           schema:
             type: string
             format: uuid
       responses:
         '204':
-          description: Student deleted successfully
+          description: 学生删除成功
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '404':
-          description: Student not found
+          description: 学生不存在
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '500':
-          description: Internal server error
+          description: 服务器内部错误
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
 
-  # Enrollment Management APIs
+  # 选课管理 API
   /api/enrollments:
     get:
-      summary: Get all enrollments
-      description: Retrieve a list of all course enrollments
+      summary: 查询所有选课记录
+      description: 获取所有课程选课记录的列表
       tags:
-        - Enrollments
+        - 选课管理
       responses:
         '200':
-          description: Successful operation
+          description: 查询成功
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '500':
-          description: Internal server error
+          description: 服务器内部错误
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
     post:
-      summary: Create a new enrollment
-      description: Enroll a student in a course
+      summary: 创建新选课记录
+      description: 学生选课
       tags:
-        - Enrollments
+        - 选课管理
       requestBody:
-        description: Enrollment object to be created
+        description: 要创建的选课对象
         required: true
         content:
           application/json:
@@ -209,19 +252,19 @@ paths:
               $ref: '#/components/schemas/EnrollmentRequest'
       responses:
         '201':
-          description: Enrollment created successfully
+          description: 选课成功
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '400':
-          description: Invalid input or business rule violation
+          description: 无效的输入数据或违反业务规则
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '500':
-          description: Internal server error
+          description: 服务器内部错误
           content:
             application/json:
               schema:
@@ -229,33 +272,33 @@ paths:
 
   /api/enrollments/{id}:
     delete:
-      summary: Delete enrollment
-      description: Withdraw a student from a course by enrollment ID
+      summary: 删除选课记录
+      description: 根据选课ID退课
       tags:
-        - Enrollments
+        - 选课管理
       parameters:
         - name: id
           in: path
-          description: UUID of the enrollment to delete
+          description: 要删除的选课记录UUID
           required: true
           schema:
             type: string
             format: uuid
       responses:
         '204':
-          description: Enrollment deleted successfully
+          description: 退课成功
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '404':
-          description: Enrollment not found
+          description: 选课记录不存在
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '500':
-          description: Internal server error
+          description: 服务器内部错误
           content:
             application/json:
               schema:
@@ -263,32 +306,32 @@ paths:
 
   /api/enrollments/course/{courseId}:
     get:
-      summary: Get enrollments by course
-      description: Retrieve all enrollments for a specific course
+      summary: 根据课程查询选课记录
+      description: 获取特定课程的所有选课记录
       tags:
-        - Enrollments
+        - 选课管理
       parameters:
         - name: courseId
           in: path
-          description: ID of the course to retrieve enrollments for
+          description: 课程ID
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: Successful operation
+          description: 查询成功
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '400':
-          description: Invalid course ID
+          description: 无效的课程ID
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '500':
-          description: Internal server error
+          description: 服务器内部错误
           content:
             application/json:
               schema:
@@ -296,32 +339,32 @@ paths:
 
   /api/enrollments/student/{studentId}:
     get:
-      summary: Get enrollments by student
-      description: Retrieve all enrollments for a specific student
+      summary: 根据学生查询选课记录
+      description: 获取特定学生的所有选课记录
       tags:
-        - Enrollments
+        - 选课管理
       parameters:
         - name: studentId
           in: path
-          description: ID of the student to retrieve enrollments for
+          description: 学生ID
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: Successful operation
+          description: 查询成功
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '400':
-          description: Invalid student ID
+          description: 无效的学生ID
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '500':
-          description: Internal server error
+          description: 服务器内部错误
           content:
             application/json:
               schema:
@@ -334,12 +377,12 @@ components:
       properties:
         code:
           type: integer
-          description: HTTP status code
+          description: HTTP状态码
           example: 200
         message:
           type: string
-          description: Response message
-          example: "Success"
+          description: 响应消息
+          example: "成功"
         data:
           oneOf:
             - $ref: '#/components/schemas/Student'
@@ -358,39 +401,39 @@ components:
         id:
           type: string
           format: uuid
-          description: Unique identifier
+          description: 唯一标识符
           example: "550e8400-e29b-41d4-a716-446655440000"
         studentId:
           type: string
-          description: Student ID (e.g., "2024001")
+          description: 学号（例如："2024001"）
           maxLength: 20
           example: "2024001"
         name:
           type: string
-          description: Student name
+          description: 学生姓名
           maxLength: 50
           example: "张三"
         major:
           type: string
-          description: Student major
+          description: 学生专业
           maxLength: 100
           example: "计算机科学"
         grade:
           type: integer
-          description: Student grade
+          description: 学生年级
           minimum: 2000
           maximum: 2100
           example: 2024
         email:
           type: string
           format: email
-          description: Student email address
+          description: 学生邮箱
           maxLength: 100
           example: "zhangsan@example.com"
         createdAt:
           type: string
           format: date-time
-          description: Creation timestamp
+          description: 创建时间戳
           example: "2024-01-01T12:00:00"
       required:
         - studentId
@@ -405,19 +448,19 @@ components:
         id:
           type: string
           format: uuid
-          description: Unique identifier
+          description: 唯一标识符
           example: "550e8400-e29b-41d4-a716-446655440000"
         courseId:
           type: string
-          description: Course ID
+          description: 课程ID
           example: "550e8400-e29b-41d4-a716-446655440000"
         studentId:
           type: string
-          description: Student ID
+          description: 学生ID
           example: "550e8400-e29b-41d4-a716-446655440000"
         status:
           type: string
-          description: Enrollment status
+          description: 选课状态
           enum:
             - ENROLLED
             - WITHDRAWN
@@ -426,11 +469,11 @@ components:
         enrolledAt:
           type: string
           format: date-time
-          description: Enrollment timestamp
+          description: 选课时间
           example: "2024-01-01T12:00:00"
         grade:
           type: number
-          description: Student grade (optional)
+          description: 学生成绩（可选）
           minimum: 0
           maximum: 100
           example: 85.5
@@ -443,11 +486,11 @@ components:
       properties:
         courseId:
           type: string
-          description: Course ID
+          description: 课程ID
           example: "550e8400-e29b-41d4-a716-446655440000"
         studentId:
           type: string
-          description: Student ID
+          description: 学生ID
           example: "2024001"
       required:
         - courseId

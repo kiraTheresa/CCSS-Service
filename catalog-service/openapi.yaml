@@ -1,43 +1,129 @@
 openapi: 3.0.3
 info:
-  title: Catalog Service API
-  description: Course Catalog Service provides RESTful APIs for managing course information
+  title: 课程目录服务API
+  description: 课程目录服务提供管理课程信息的RESTful API
   version: 1.0.0
   contact:
-    name: Developer
+    name: 开发者
     email: developer@example.com
 
 servers:
-  - url: http://localhost:8080
-    description: Local development server
+  - url: http://localhost:8081
+    description: 本地开发服务器
 
 paths:
-  /api/courses:
+  /health:
     get:
-      summary: Get all courses
-      description: Retrieve a list of all courses in the catalog
+      summary: 基本健康检查
+      description: 获取服务的基本健康状态
       tags:
-        - Courses
+        - 健康检查
       responses:
         '200':
-          description: Successful operation
+          description: 服务正常
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: 服务状态
+                    example: "UP"
+                  service:
+                    type: string
+                    description: 服务名称
+                    example: "catalog-service"
+                  timestamp:
+                    type: string
+                    description: 响应时间戳
+                    example: "2024-01-01T12:00:00"
+        '500':
+          description: 服务异常
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: 服务状态
+                    example: "DOWN"
+                  service:
+                    type: string
+                    description: 服务名称
+                    example: "catalog-service"
+                  timestamp:
+                    type: string
+                    description: 响应时间戳
+                    example: "2024-01-01T12:00:00"
+
+  /health/detailed:
+    get:
+      summary: 详细健康检查
+      description: 获取服务的详细健康信息
+      tags:
+        - 健康检查
+      responses:
+        '200':
+          description: 服务正常
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: 服务状态
+                    example: "UP"
+                  service:
+                    type: string
+                    description: 服务名称
+                    example: "catalog-service"
+                  timestamp:
+                    type: string
+                    description: 响应时间戳
+                    example: "2024-01-01T12:00:00"
+                  version:
+                    type: string
+                    description: 服务版本
+                    example: "1.0.0"
+                  description:
+                    type: string
+                    description: 服务描述
+                    example: "课程目录服务，提供课程管理功能"
+                  endpoints:
+                    type: object
+                    description: 服务端点信息
+                    additionalProperties:
+                      type: string
+
+  /api/courses:
+    get:
+      summary: 查询所有课程
+      description: 获取课程目录中所有课程的列表
+      tags:
+        - 课程管理
+      responses:
+        '200':
+          description: 查询成功
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '500':
-          description: Internal server error
+          description: 服务器内部错误
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
     post:
-      summary: Create a new course
-      description: Create a new course in the catalog
+      summary: 创建新课程
+      description: 在课程目录中创建一门新课程
       tags:
-        - Courses
+        - 课程管理
       requestBody:
-        description: Course object to be created
+        description: 要创建的课程对象
         required: true
         content:
           application/json:
@@ -45,19 +131,19 @@ paths:
               $ref: '#/components/schemas/Course'
       responses:
         '201':
-          description: Course created successfully
+          description: 课程创建成功
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '400':
-          description: Invalid input
+          description: 无效的输入数据
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '500':
-          description: Internal server error
+          description: 服务器内部错误
           content:
             application/json:
               schema:
@@ -65,52 +151,52 @@ paths:
 
   /api/courses/{id}:
     get:
-      summary: Get course by ID
-      description: Retrieve a specific course by its UUID
+      summary: 根据ID查询课程
+      description: 根据课程的UUID查询特定课程
       tags:
-        - Courses
+        - 课程管理
       parameters:
         - name: id
           in: path
-          description: UUID of the course to retrieve
+          description: 要查询的课程UUID
           required: true
           schema:
             type: string
             format: uuid
       responses:
         '200':
-          description: Successful operation
+          description: 查询成功
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '404':
-          description: Course not found
+          description: 课程不存在
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '500':
-          description: Internal server error
+          description: 服务器内部错误
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
     put:
-      summary: Update course
-      description: Update an existing course by its UUID
+      summary: 更新课程信息
+      description: 根据课程的UUID更新现有课程
       tags:
-        - Courses
+        - 课程管理
       parameters:
         - name: id
           in: path
-          description: UUID of the course to update
+          description: 要更新的课程UUID
           required: true
           schema:
             type: string
             format: uuid
       requestBody:
-        description: Updated course object
+        description: 更新后的课程对象
         required: true
         content:
           application/json:
@@ -118,57 +204,57 @@ paths:
               $ref: '#/components/schemas/Course'
       responses:
         '200':
-          description: Course updated successfully
+          description: 课程更新成功
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '400':
-          description: Invalid input
+          description: 无效的输入数据
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '404':
-          description: Course not found
+          description: 课程不存在
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '500':
-          description: Internal server error
+          description: 服务器内部错误
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
     delete:
-      summary: Delete course
-      description: Delete a course by its UUID
+      summary: 删除课程
+      description: 根据课程的UUID删除课程
       tags:
-        - Courses
+        - 课程管理
       parameters:
         - name: id
           in: path
-          description: UUID of the course to delete
+          description: 要删除的课程UUID
           required: true
           schema:
             type: string
             format: uuid
       responses:
         '204':
-          description: Course deleted successfully
+          description: 课程删除成功
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '404':
-          description: Course not found
+          description: 课程不存在
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '500':
-          description: Internal server error
+          description: 服务器内部错误
           content:
             application/json:
               schema:
@@ -176,33 +262,33 @@ paths:
 
   /api/courses/code/{code}:
     get:
-      summary: Get course by code
-      description: Retrieve a course by its unique code
+      summary: 根据课程编号查询课程
+      description: 根据课程的唯一编号查询课程
       tags:
-        - Courses
+        - 课程管理
       parameters:
         - name: code
           in: path
-          description: Code of the course to retrieve
+          description: 要查询的课程编号
           required: true
           schema:
             type: string
             maxLength: 20
       responses:
         '200':
-          description: Successful operation
+          description: 查询成功
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '404':
-          description: Course not found
+          description: 课程不存在
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '500':
-          description: Internal server error
+          description: 服务器内部错误
           content:
             application/json:
               schema:
@@ -210,32 +296,32 @@ paths:
 
   /api/courses/instructor/{instructorId}:
     get:
-      summary: Get courses by instructor
-      description: Retrieve all courses taught by a specific instructor
+      summary: 根据教师ID查询课程
+      description: 查询特定教师教授的所有课程
       tags:
-        - Courses
+        - 课程管理
       parameters:
         - name: instructorId
           in: path
-          description: ID of the instructor
+          description: 教师的ID
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: Successful operation
+          description: 查询成功
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '400':
-          description: Invalid instructor ID
+          description: 无效的教师ID
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '500':
-          description: Internal server error
+          description: 服务器内部错误
           content:
             application/json:
               schema:
@@ -243,32 +329,32 @@ paths:
 
   /api/courses/search:
     get:
-      summary: Search courses by title
-      description: Search for courses by title keyword
+      summary: 根据标题搜索课程
+      description: 根据标题关键词搜索课程
       tags:
-        - Courses
+        - 课程管理
       parameters:
         - name: keyword
           in: query
-          description: Search term for course titles
+          description: 课程标题搜索关键词
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: Successful operation
+          description: 查询成功
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '400':
-          description: Invalid search keyword
+          description: 无效的搜索关键词
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '500':
-          description: Internal server error
+          description: 服务器内部错误
           content:
             application/json:
               schema:
@@ -281,12 +367,12 @@ components:
       properties:
         code:
           type: integer
-          description: HTTP status code
+          description: HTTP状态码
           example: 200
         message:
           type: string
-          description: Response message
-          example: "Success"
+          description: 响应消息
+          example: "成功"
         data:
           oneOf:
             - $ref: '#/components/schemas/Course'
@@ -301,56 +387,56 @@ components:
         id:
           type: string
           format: uuid
-          description: Unique identifier
+          description: 唯一标识符
           example: "550e8400-e29b-41d4-a716-446655440000"
         code:
           type: string
-          description: Course code (e.g., "CS101")
+          description: 课程编号（例如："CS101"）
           maxLength: 20
           example: "CS101"
         title:
           type: string
-          description: Course title
+          description: 课程标题
           maxLength: 100
           example: "计算机科学导论"
         instructorId:
           type: string
-          description: Instructor's ID
+          description: 教师ID
           example: "INS001"
         scheduleId:
           type: string
-          description: Schedule slot ID
+          description: 排课ID
           example: "SCH001"
         capacity:
           type: integer
-          description: Maximum enrollment capacity
+          description: 最大选课人数
           minimum: 1
           maximum: 500
           example: 50
         createdAt:
           type: string
           format: date-time
-          description: Creation timestamp
+          description: 创建时间戳
           example: "2024-01-01T12:00:00"
         enrolled:
           type: integer
-          description: Current number of enrolled students
+          description: 当前选课人数
           minimum: 0
           example: 0
         description:
           type: string
-          description: Course description
+          description: 课程描述
           maxLength: 1000
           example: "计算机科学入门课程"
         credits:
           type: integer
-          description: Course credits
+          description: 课程学分
           minimum: 0
           maximum: 10
           example: 3
         location:
           type: string
-          description: Course location
+          description: 上课地点
           maxLength: 200
           example: "教室101"
       required:
