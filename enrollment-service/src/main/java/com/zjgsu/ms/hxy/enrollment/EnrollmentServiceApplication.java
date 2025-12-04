@@ -3,7 +3,6 @@ package com.zjgsu.ms.hxy.enrollment;
 import com.zjgsu.ms.hxy.enrollment.model.Student;
 import com.zjgsu.ms.hxy.enrollment.service.StudentService;
 import com.zjgsu.ms.hxy.enrollment.service.EnrollmentService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,12 +12,6 @@ import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 public class EnrollmentServiceApplication {
-
-    @Autowired
-    private StudentService studentService;
-
-    @Autowired
-    private EnrollmentService enrollmentService;
 
     public static void main(String[] args) {
         SpringApplication.run(EnrollmentServiceApplication.class, args);
@@ -36,7 +29,9 @@ public class EnrollmentServiceApplication {
      * 初始化学生 + 选课数据
      */
     @Bean
-    public CommandLineRunner initEnrollmentData(RestTemplate restTemplate) {
+    public CommandLineRunner initEnrollmentData(RestTemplate restTemplate, 
+                                               StudentService studentService, 
+                                               EnrollmentService enrollmentService) {
         return args -> {
             System.out.println("=== enrollment-service 初始化数据 ===");
 
@@ -55,10 +50,10 @@ public class EnrollmentServiceApplication {
             studentService.createStudent(s3);
 
             // ----- 创建选课（远程校验课程是否存在）-----
-            enrollSafely("CS101", s1.getId().toString(), restTemplate);
-            enrollSafely("ENG101", s1.getId().toString(), restTemplate);
-            enrollSafely("MATH201", s2.getId().toString(), restTemplate);
-            enrollSafely("CS101", s3.getId().toString(), restTemplate);
+            enrollSafely("CS101", s1.getId().toString(), restTemplate, enrollmentService);
+            enrollSafely("ENG101", s1.getId().toString(), restTemplate, enrollmentService);
+            enrollSafely("MATH201", s2.getId().toString(), restTemplate, enrollmentService);
+            enrollSafely("CS101", s3.getId().toString(), restTemplate, enrollmentService);
 
             System.out.println("=== enrollment-service 初始化完成 ===");
         };
@@ -67,7 +62,9 @@ public class EnrollmentServiceApplication {
     /**
      * 远程调用 catalog-service 验证课程是否存在，然后才允许选课
      */
-    private void enrollSafely(String courseCode, String studentId, RestTemplate restTemplate) {
+    private void enrollSafely(String courseCode, String studentId, 
+                             RestTemplate restTemplate, 
+                             EnrollmentService enrollmentService) {
         try {
             // 首先通过课程代码获取课程ID
             String courseUrl = "http://localhost:8081/api/courses/code/" + courseCode;

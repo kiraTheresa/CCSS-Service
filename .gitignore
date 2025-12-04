@@ -6,3 +6,4 @@
 /enrollment-service/target/
 /catalog-service/.idea/
 /enrollment-service/.idea/
+/catalog-service/${project.build.directory}
