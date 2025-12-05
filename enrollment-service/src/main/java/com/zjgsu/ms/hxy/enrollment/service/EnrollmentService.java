@@ -396,7 +396,7 @@ public class EnrollmentService {
         try {
             courseResponse = restTemplate.getForObject(courseUrl, Map.class);
         } catch (HttpClientErrorException.NotFound e) {
-            throw new IllegalArgumentException("课程不存在，ID: " + courseId);
+            throw new com.zjgsu.ms.hxy.enrollment.exception.CourseNotFoundException(courseId);
         } catch (HttpClientErrorException e) {
             throw new RuntimeException("调用课程服务失败，状态码: " + e.getStatusCode() + ", 错误信息: " + e.getResponseBodyAsString());
         } catch (Exception e) {
@@ -470,19 +470,22 @@ public class EnrollmentService {
                 enrollmentRepository.save(enroll);
 
                 // 调用课程目录服务获取当前课程信息
-                String courseUrl = catalogServiceUrl + "/api/courses/" + courseId;
-                Map<String, Object> courseResponse;
-                try {
-                    courseResponse = restTemplate.getForObject(courseUrl, Map.class);
-                    Map<String, Object> courseData = (Map<String, Object>) courseResponse.get("data");
-                    Integer enrolled = (Integer) courseData.get("enrolled");
-                    
-                    // 减少课程选课人数
-                    updateCourseEnrolledCount(courseId, enrolled - 1);
-                } catch (Exception e) {
-                    // 记录日志但不影响主流程
-                    System.err.println("Failed to update course enrolled count during withdraw: " + e.getMessage());
-                }
+            String courseUrl = catalogServiceUrl + "/api/courses/" + courseId;
+            Map<String, Object> courseResponse;
+            try {
+                courseResponse = restTemplate.getForObject(courseUrl, Map.class);
+                Map<String, Object> courseData = (Map<String, Object>) courseResponse.get("data");
+                Integer enrolled = (Integer) courseData.get("enrolled");
+                
+                // 减少课程选课人数
+                updateCourseEnrolledCount(courseId, enrolled - 1);
+            } catch (HttpClientErrorException.NotFound e) {
+                // 课程不存在时，记录日志但不影响主流程
+                System.err.println("Course not found during withdraw: " + courseId + " - " + e.getMessage());
+            } catch (Exception e) {
+                // 其他异常，记录日志但不影响主流程
+                System.err.println("Failed to update course enrolled count during withdraw: " + e.getMessage());
+            }
 
                 return true;
             } else {

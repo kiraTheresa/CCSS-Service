@@ -121,6 +121,12 @@ public class EnrollmentController {
             response.put("message", e.getMessage());
             response.put("data", null);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (com.zjgsu.ms.hxy.enrollment.exception.CourseNotFoundException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("code", 404);
+            response.put("message", e.getMessage());
+            response.put("data", null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("code", 500);
@@ -194,6 +200,12 @@ public class EnrollmentController {
             response.put("message", e.getMessage());
             response.put("data", null);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (com.zjgsu.ms.hxy.enrollment.exception.CourseNotFoundException e) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("code", 404);
+            response.put("message", e.getMessage());
+            response.put("data", null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (Exception e) {
             Map<String, Object> response = new HashMap<>();
             response.put("code", 500);
