@@ -74,34 +74,36 @@ docker-compose logs -f enrollment-service
 
 ### 课程目录服务（catalog-service）
 
-| 方法 | URL | 描述 |
-|------|-----|------|
-| GET | /api/courses | 获取所有课程 |
-| GET | /api/courses/{id} | 获取单个课程 |
-| GET | /api/courses/code/{code} | 按课程代码查询 |
-| POST | /api/courses | 创建课程 |
-| PUT | /api/courses/{id} | 更新课程 |
-| DELETE | /api/courses/{id} | 删除课程 |
+| 方法   | URL                      | 描述           |
+| ------ | ------------------------ | -------------- |
+| GET    | /api/courses             | 获取所有课程   |
+| GET    | /api/courses/{id}        | 获取单个课程   |
+| GET    | /api/courses/code/{code} | 按课程代码查询 |
+| POST   | /api/courses             | 创建课程       |
+| PUT    | /api/courses/{id}        | 更新课程       |
+| DELETE | /api/courses/{id}        | 删除课程       |
 
 ### 选课服务（enrollment-service）
 
 #### 学生管理
-| 方法 | URL | 描述 |
-|------|-----|------|
-| GET | /api/students | 获取所有学生 |
-| GET | /api/students/{id} | 获取单个学生 |
-| POST | /api/students | 创建学生 |
-| PUT | /api/students/{id} | 更新学生 |
-| DELETE | /api/students/{id} | 删除学生 |
+
+| 方法   | URL                | 描述         |
+| ------ | ------------------ | ------------ |
+| GET    | /api/students      | 获取所有学生 |
+| GET    | /api/students/{id} | 获取单个学生 |
+| POST   | /api/students      | 创建学生     |
+| PUT    | /api/students/{id} | 更新学生     |
+| DELETE | /api/students/{id} | 删除学生     |
 
 #### 选课管理
-| 方法 | URL | 描述 |
-|------|-----|------|
-| GET | /api/enrollments | 获取所有选课记录 |
-| GET | /api/enrollments/course/{courseId} | 按课程查询选课 |
-| GET | /api/enrollments/student/{studentId} | 按学生查询选课 |
-| POST | /api/enrollments | 学生选课 |
-| DELETE | /api/enrollments/{id} | 学生退课 |
+
+| 方法   | URL                                  | 描述             |
+| ------ | ------------------------------------ | ---------------- |
+| GET    | /api/enrollments                     | 获取所有选课记录 |
+| GET    | /api/enrollments/course/{courseId}   | 按课程查询选课   |
+| GET    | /api/enrollments/student/{studentId} | 按学生查询选课   |
+| POST   | /api/enrollments                     | 学生选课         |
+| DELETE | /api/enrollments/{id}                | 学生退课         |
 
 ## 测试说明
 
@@ -118,6 +120,7 @@ chmod +x test-services.sh
 ### 手动测试示例
 
 #### 1. 创建课程
+
 ```bash
 curl -X POST http://localhost:8081/api/courses \
 -H "Content-Type: application/json" \
@@ -141,6 +144,7 @@ curl -X POST http://localhost:8081/api/courses \
 ```
 
 #### 2. 创建学生
+
 ```bash
 curl -X POST http://localhost:8082/api/students \
 -H "Content-Type: application/json" \
@@ -154,6 +158,7 @@ curl -X POST http://localhost:8082/api/students \
 ```
 
 #### 3. 学生选课
+
 ```bash
 # 先获取课程ID
 COURSE_ID=$(curl -s http://localhost:8081/api/courses | jq -r '.data[0].id')
@@ -170,14 +175,15 @@ curl -X POST http://localhost:8082/api/enrollments \
 ## 遇到的问题和解决方案
 
 1. **服务间调用失败**
+
    - 问题：enrollment-service无法连接到catalog-service
    - 解决方案：检查Docker网络配置，确保两个服务在同一网络中，并使用服务名称作为主机名
-
 2. **数据库初始化失败**
+
    - 问题：服务启动时无法连接到数据库
    - 解决方案：在docker-compose.yml中配置服务依赖关系，使用healthcheck确保数据库完全启动后再启动应用服务
-
 3. **课程容量更新问题**
+
    - 问题：选课后课程已选人数未更新
    - 解决方案：在enrollment-service中添加了课程容量自动更新逻辑，选课后通过HTTP调用catalog-service更新课程已选人数
 
@@ -218,15 +224,19 @@ docker-compose logs -f
 ## 常见问题
 
 ### Q: 如何查看服务运行状态？
+
 A: 使用 `docker-compose ps` 命令查看所有服务的状态。
 
 ### Q: 服务启动失败怎么办？
+
 A: 查看服务日志 `docker-compose logs -f <service-name>`，根据错误信息进行排查。
 
 ### Q: 如何进入容器内部？
+
 A: 使用 `docker-compose exec <service-name> bash` 命令进入容器。
 
 ### Q: 如何测试数据库连接？
+
 A: 使用 `docker-compose exec <db-service-name> mysql -u <username> -p<password> <database-name>` 命令测试数据库连接。
 
 ## 版本管理
