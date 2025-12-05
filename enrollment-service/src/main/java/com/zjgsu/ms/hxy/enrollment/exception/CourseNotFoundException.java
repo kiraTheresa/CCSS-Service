@@ -10,9 +10,6 @@ package com.zjgsu.ms.hxy.enrollment.exception;
  */
 public class CourseNotFoundException extends RuntimeException {
 
-    public CourseNotFoundException(String message) {
-        super(message);
-    }
 
     public CourseNotFoundException(String courseId, String message) {
         super("课程不存在，ID: " + courseId + ", " + message);
