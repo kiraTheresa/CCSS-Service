@@ -21,9 +21,13 @@ services:
       - NACOS_AUTH_IDENTITY_KEY=dummy
       - NACOS_AUTH_IDENTITY_VALUE=dummy
       - NACOS_AUTH_TOKEN=VGhpcyBpcyBhIGR1bW15IHRva2VuIGZvciBOYWNvcyAzLjEuMA==
+      # 这版对了
+      
     ports:
-      - "8848:8848"
-      - "9848:9848"
+      - "8848:8848"  # Nacos Server API
+      - "9848:9848"  # gRPC 端口
+      - "8080:8080"  # Nacos 控制台（Web）
+
     networks:
       - course-network
     restart: unless-stopped

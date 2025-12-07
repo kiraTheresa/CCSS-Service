@@ -28,11 +28,13 @@ docker-compose up -d nacos
 
 ### 2.3 访问 Nacos 控制台
 
-Nacos 控制台默认访问地址：
+根据实际运行情况，Nacos 控制台访问地址：
 
 - URL: http://localhost:8848/nacos
 - 用户名: nacos
 - 密码: nacos
+
+**注意**：从日志可以看到，容器内部 Nacos 使用端口 8080 启动，但通过 Docker 端口映射，我们可以通过主机的 8848 端口访问 Nacos 控制台。
 
 ## 3. 配置说明
 
@@ -205,6 +207,154 @@ chmod +x scripts/nacos-test.sh
    # 然后使用 enrollment-service 调用 catalog-service 验证课程是否存在
    curl -X POST -H "Content-Type: application/json" -d '{"courseId": "'$COURSE_ID'", "studentId": "2024001"}' http://localhost:8082/api/enrollments
    ```
+
+### 6.3 多实例负载均衡测试
+
+#### 6.3.1 启动多个服务实例
+
+1. 启动基础服务：
+
+   ```bash
+   docker-compose up -d nacos catalog-db enrollment-db
+   ```
+2. 启动多个 catalog-service 实例：
+
+   ```bash
+   # 启动第一个实例（端口 8081）
+   docker-compose up -d catalog-service
+
+   # 启动第二个实例（端口 8083）
+   docker run -d --name catalog-service-2 \
+     --network course-network \
+     -p 8083:8081 \
+     -e SPRING_PROFILES_ACTIVE=docker \
+     -e DB_URL=jdbc:mysql://catalog-db:3306/catalog_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true \
+     -e DB_USERNAME=catalog_user \
+     -e DB_PASSWORD=catalog_pass \
+     catalog-service
+
+   # 启动第三个实例（端口 8084）
+   docker run -d --name catalog-service-3 \
+     --network course-network \
+     -p 8084:8081 \
+     -e SPRING_PROFILES_ACTIVE=docker \
+     -e DB_URL=jdbc:mysql://catalog-db:3306/catalog_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true \
+     -e DB_USERNAME=catalog_user \
+     -e DB_PASSWORD=catalog_pass \
+     catalog-service
+   ```
+3. 启动 enrollment-service：
+
+   ```bash
+   docker-compose up -d enrollment-service
+   ```
+
+#### 6.3.2 验证负载均衡
+
+1. 修改 catalog-service 的 Controller，返回当前服务的端口号：
+
+   ```java
+   // 在 CourseController.java 中添加端口信息到返回结果
+   @Autowired
+   private ServerProperties serverProperties;
+
+   @GetMapping
+   public ResponseEntity<ApiResponse<List<Course>>> getAllCourses() {
+       List<Course> courses = courseService.getAllCourses();
+       Map<String, Object> data = new HashMap<>();
+       data.put("courses", courses);
+       data.put("port", serverProperties.getPort());
+       return ResponseEntity.ok(new ApiResponse<>("success", data, null));
+   }
+   ```
+2. 编译并重新构建 catalog-service 镜像：
+
+   ```bash
+   cd catalog-service
+   mvn clean package -DskipTests
+   docker build -t catalog-service .
+   cd ..
+   ```
+3. 多次调用 enrollment-service 的测试接口，观察返回的端口号：
+
+   ```bash
+   for i in {1..10}; do
+     curl -s http://localhost:8082/api/enrollments/test | grep -o "port":[0-9]*
+   done
+   ```
+4. 观察输出结果，应该能看到请求被分发到不同的端口（8081, 8083, 8084），证明负载均衡生效。
+
+##### 多实例负载均衡效果截图：
+
+执行上述命令后，截图显示终端输出，包含不同端口号的分布情况。
+
+### 6.4 故障转移测试
+
+1. 确保有多个 catalog-service 实例在运行：
+
+   ```bash
+   docker ps | grep catalog-service
+   ```
+2. 记录当前运行的 catalog-service 实例的容器 ID。
+3. 多次调用 enrollment-service 的测试接口，确保所有实例都能正常响应：
+
+   ```bash
+   for i in {1..5}; do
+     curl -s http://localhost:8082/api/enrollments/test | grep -o "port":[0-9]*
+   done
+   ```
+4. 停止其中一个 catalog-service 实例：
+
+   ```bash
+   docker stop <container_id>
+   ```
+5. 立即再次调用测试接口，观察请求是否仍然成功：
+
+   ```bash
+   for i in {1..5}; do
+     curl -s http://localhost:8082/api/enrollments/test | grep -o "port":[0-9]*
+   done
+   ```
+6. 等待约 15-30 秒（Nacos 心跳超时时间），然后检查 Nacos 控制台，确认该实例已被标记为不健康。
+7. 再次调用测试接口，观察请求是否只分发到健康的实例。
+
+##### 故障转移效果：
+
+- 截图 1：停止实例前，所有实例的响应情况
+- 截图 2：停止实例后，立即调用的响应情况（可能会有一两次失败，这是正常的）
+- 截图 3：Nacos 控制台显示实例状态变化
+- 截图 4：等待一段时间后，所有请求都成功分发到健康实例
+
+### 6.5 健康检查测试
+
+1. 启动所有服务：
+
+   ```bash
+   docker-compose up -d
+   ```
+2. 检查 Nacos 控制台中的服务健康状态：
+
+   - 登录 Nacos 控制台
+   - 进入「服务管理」→「服务列表」
+   - 选择命名空间 `dev` 和分组 `COURSEHUB_GROUP`
+   - 点击服务名，查看实例列表和健康状态
+3. 检查服务自身的健康检查端点：
+
+   ```bash
+   curl -s http://localhost:8081/actuator/health | jq
+   curl -s http://localhost:8082/actuator/health | jq
+   ```
+4. 使用 Nacos API 检查服务健康状态：
+
+   ```bash
+   curl -s "http://localhost:8848/nacos/v1/ns/instance/list?serviceName=catalog-service&namespaceId=dev&healthyOnly=true" | jq
+   ```
+
+##### 健康检查截图：
+
+- 截图 1：Nacos 控制台中服务实例的健康状态列表
+- 截图 2：调用 `/actuator/health` 端点的返回结果
+- 截图 3：使用 Nacos API 获取健康实例的返回结果
 
 ## 7. 常见问题
 
