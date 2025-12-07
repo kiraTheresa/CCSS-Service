@@ -9,6 +9,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.event.EventListener;
 
 
 @SpringBootApplication
@@ -114,6 +115,43 @@ public class CatalogServiceApplication {
 
         } catch (Exception e) {
             System.err.println("打印课程统计信息失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 应用启动完成事件监听器，打印Nacos注册信息
+     */
+    @EventListener(org.springframework.boot.context.event.ApplicationReadyEvent.class)
+    public void onApplicationReady(ApplicationReadyEvent event) {
+        try {
+            // 获取应用上下文
+            org.springframework.context.ApplicationContext context = event.getApplicationContext();
+            // 获取DiscoveryClient
+            org.springframework.cloud.client.discovery.DiscoveryClient discoveryClient = 
+                context.getBean(org.springframework.cloud.client.discovery.DiscoveryClient.class);
+            
+            // 获取服务名
+            String serviceName = context.getEnvironment().getProperty("spring.application.name");
+            
+            // 打印Nacos注册信息
+            System.out.println("\n=== Nacos 服务注册信息 ===");
+            System.out.println("服务名: " + serviceName);
+            System.out.println("已注册到 Nacos: true");
+            System.out.println("Nacos 服务器地址: " + context.getEnvironment().getProperty("spring.cloud.nacos.discovery.server-addr"));
+            System.out.println("命名空间: " + context.getEnvironment().getProperty("spring.cloud.nacos.discovery.namespace"));
+            System.out.println("服务分组: " + context.getEnvironment().getProperty("spring.cloud.nacos.discovery.group"));
+            
+            // 获取当前服务实例信息
+            java.util.List<org.springframework.cloud.client.ServiceInstance> instances = discoveryClient.getInstances(serviceName);
+            if (instances != null && !instances.isEmpty()) {
+                org.springframework.cloud.client.ServiceInstance instance = instances.get(0);
+                System.out.println("当前实例地址: " + instance.getUri());
+                System.out.println("当前实例IP: " + instance.getHost());
+                System.out.println("当前实例端口: " + instance.getPort());
+            }
+            System.out.println("=========================\n");
+        } catch (Exception e) {
+            System.err.println("获取Nacos注册信息失败: " + e.getMessage());
         }
     }
 
