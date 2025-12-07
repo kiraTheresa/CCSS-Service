@@ -29,6 +29,7 @@ docker-compose up -d nacos
 ### 2.3 访问 Nacos 控制台
 
 Nacos 控制台默认访问地址：
+
 - URL: http://localhost:8848/nacos
 - 用户名: nacos
 - 密码: nacos
@@ -93,6 +94,7 @@ nacos:
 ### 4.1 服务注册
 
 服务启动时，会自动注册到 Nacos，注册信息包括：
+
 - 服务名
 - 服务实例 IP
 - 服务实例端口
@@ -127,6 +129,7 @@ restTemplate.getForObject(serviceUrl + "/api/courses/" + courseId, Map.class);
 ### 5.1 自动健康检查
 
 Nacos 会定期发送心跳请求到服务的健康检查端点，默认配置为：
+
 - 心跳间隔：5 秒
 - 心跳超时：15 秒
 
@@ -168,6 +171,7 @@ chmod +x scripts/nacos-test.sh
 ```
 
 测试脚本会执行以下操作：
+
 - 启动所有服务
 - 等待服务启动
 - 检查 Nacos 控制台
@@ -180,11 +184,12 @@ chmod +x scripts/nacos-test.sh
 #### 6.2.1 测试服务注册
 
 1. 启动所有服务：
+
    ```bash
    docker-compose up -d
    ```
-
 2. 检查服务是否注册到 Nacos：
+
    ```bash
    curl -X GET "http://localhost:8848/nacos/v1/ns/instance/list?serviceName=catalog-service&namespaceId=dev"
    curl -X GET "http://localhost:8848/nacos/v1/ns/instance/list?serviceName=enrollment-service&namespaceId=dev"
@@ -196,7 +201,7 @@ chmod +x scripts/nacos-test.sh
    ```bash
    # 首先获取一个课程ID
    COURSE_ID=$(curl -s http://localhost:8081/api/courses | jq -r '.data[0].id')
-   
+
    # 然后使用 enrollment-service 调用 catalog-service 验证课程是否存在
    curl -X POST -H "Content-Type: application/json" -d '{"courseId": "'$COURSE_ID'", "studentId": "2024001"}' http://localhost:8082/api/enrollments
    ```
@@ -206,11 +211,13 @@ chmod +x scripts/nacos-test.sh
 ### 7.1 服务无法注册到 Nacos
 
 **可能原因：**
+
 - Nacos 服务器未启动或网络不通
 - 配置文件中的 `server-addr` 地址错误
 - 命名空间 ID 不存在
 
 **解决方法：**
+
 - 检查 Nacos 容器是否正常运行：`docker logs nacos`
 - 确保服务和 Nacos 在同一个网络中
 - 在 Nacos 控制台创建对应的命名空间
@@ -218,11 +225,13 @@ chmod +x scripts/nacos-test.sh
 ### 7.2 服务间调用失败
 
 **可能原因：**
+
 - 服务名配置错误（大小写敏感）
 - 目标服务未启动或未注册成功
 - 网络配置问题
 
 **解决方法：**
+
 - 在 Nacos 控制台确认目标服务已注册且状态健康
 - 检查 `DiscoveryClient` 调用的服务名是否与 Nacos 中注册的服务名一致
 - 确保所有服务在同一个 Docker 网络中
@@ -230,11 +239,13 @@ chmod +x scripts/nacos-test.sh
 ### 7.3 健康检查一直显示不健康
 
 **可能原因：**
+
 - 健康检查接口返回非 200 状态码
 - 应用未完全启动
 - Actuator 端点未暴露
 
 **解决方法：**
+
 - 确保 `management.endpoints.web.exposure.include` 包含 `health`
 - 检查 `/actuator/health` 端点是否可访问
 - 增加服务启动等待时间
@@ -242,11 +253,13 @@ chmod +x scripts/nacos-test.sh
 ### 7.4 Nacos 控制台无法访问
 
 **可能原因：**
+
 - Nacos 服务未启动
 - 端口映射错误
 - 防火墙阻止访问
 
 **解决方法：**
+
 - 检查 Nacos 容器是否正常运行：`docker ps`
 - 检查端口映射：`docker-compose ps`
 - 检查防火墙设置
@@ -267,6 +280,7 @@ chmod +x scripts/nacos-test.sh
 ### 8.3 高可用部署
 
 在生产环境中，建议使用 Nacos 集群部署，提高可用性：
+
 - 至少部署 3 个节点
 - 使用负载均衡器分发请求
 - 配置持久化存储
