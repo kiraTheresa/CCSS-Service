@@ -20,7 +20,7 @@ services:
       - NACOS_AUTH_ENABLE=false
       - NACOS_AUTH_IDENTITY_KEY=dummy
       - NACOS_AUTH_IDENTITY_VALUE=dummy
-      # ❗ token 不要写，必须删除
+      - NACOS_AUTH_TOKEN=VGhpcyBpcyBhIGR1bW15IHRva2VuIGZvciBOYWNvcyAzLjEuMA==
     ports:
       - "8848:8848"
       - "9848:9848"
