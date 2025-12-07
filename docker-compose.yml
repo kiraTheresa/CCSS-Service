@@ -13,10 +13,12 @@ services:
   nacos:
     image: nacos/nacos-server:v3.1.0
     container_name: nacos
+    # 他的认证很麻烦
     environment:
-    - MODE=standalone         # 独立模式
-    - NACOS_AUTH_ENABLE=false # 关闭认证（需要这个）
-    - NACOS_AUTH_TOKEN=ZHVtbXk=   # 随便一个 Base64 字符串，必须有
+      - MODE=standalone
+      - NACOS_AUTH_ENABLE=false
+      - NACOS_AUTH_IDENTITY_KEY=dummy
+      - NACOS_AUTH_IDENTITY_VALUE=dummy
     ports:
       - "8848:8848"
       - "9848:9848"
