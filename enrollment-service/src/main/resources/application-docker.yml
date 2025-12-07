@@ -21,7 +21,30 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
+  
+  # Nacos Discovery 配置
+  cloud:
+    nacos:
+      discovery:
+        server-addr: nacos:8848
+        namespace: dev
+        group: COURSEHUB_GROUP
+        ephemeral: true
+        heart-beat-interval: 5000
+        heart-beat-timeout: 15000
 
-# 服务间通信配置，使用环境变量
-catalog-service:
-  url: ${CATALOG_SERVICE_URL:http://localhost:8081}
+# 健康检查配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+  health:
+    nacos:
+      discovery:
+        enabled: true
+
+# 服务间通信配置（通过Nacos服务发现，不再使用硬编码地址）

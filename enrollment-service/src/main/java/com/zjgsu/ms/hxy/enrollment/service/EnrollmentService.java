@@ -3,8 +3,9 @@ package com.zjgsu.ms.hxy.enrollment.service;
 import com.zjgsu.ms.hxy.enrollment.model.Enrollment;
 import com.zjgsu.ms.hxy.enrollment.model.EnrollmentStatus;
 import com.zjgsu.ms.hxy.enrollment.repository.EnrollmentRepository;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,16 +34,29 @@ public class EnrollmentService {
     private final EnrollmentRepository enrollmentRepository;
     private final StudentService studentService;
     private final RestTemplate restTemplate;
-    
-    @Value("${catalog-service.url}")
-    private String catalogServiceUrl;
+    private final DiscoveryClient discoveryClient;
 
     public EnrollmentService(EnrollmentRepository enrollmentRepository,
                              @Lazy StudentService studentService,
-                             RestTemplate restTemplate) {
+                             RestTemplate restTemplate,
+                             DiscoveryClient discoveryClient) {
         this.enrollmentRepository = enrollmentRepository;
         this.studentService = studentService;
         this.restTemplate = restTemplate;
+        this.discoveryClient = discoveryClient;
+    }
+    
+    /**
+     * 获取catalog-service的服务URL
+     */
+    private String getCatalogServiceUrl() {
+        List<ServiceInstance> instances = discoveryClient.getInstances("catalog-service");
+        if (instances == null || instances.isEmpty()) {
+            throw new RuntimeException("No instances available for catalog-service");
+        }
+        // 使用第一个实例，实际生产环境中可以实现负载均衡
+        ServiceInstance instance = instances.get(0);
+        return instance.getUri().toString();
     }
     /**
      * 获取所有选课记录
@@ -391,6 +405,7 @@ public class EnrollmentService {
         }
 
         // 1. 调用课程目录服务验证课程是否存在
+        String catalogServiceUrl = getCatalogServiceUrl();
         String courseUrl = catalogServiceUrl + "/api/courses/" + courseId;
         Map<String, Object> courseResponse;
         try {
@@ -438,6 +453,7 @@ public class EnrollmentService {
      * 更新课程的已选人数
      */
     private void updateCourseEnrolledCount(String courseId, int newCount) {
+        String catalogServiceUrl = getCatalogServiceUrl();
         String updateUrl = catalogServiceUrl + "/api/courses/" + courseId;
         Map<String, Object> updateData = new HashMap<>();
         Map<String, Object> courseData = new HashMap<>();
@@ -470,6 +486,7 @@ public class EnrollmentService {
                 enrollmentRepository.save(enroll);
 
                 // 调用课程目录服务获取当前课程信息
+            String catalogServiceUrl = getCatalogServiceUrl();
             String courseUrl = catalogServiceUrl + "/api/courses/" + courseId;
             Map<String, Object> courseResponse;
             try {

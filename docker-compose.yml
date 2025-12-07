@@ -9,6 +9,19 @@ volumes:
   enrollment-data:
 
 services:
+  # Nacos服务
+  nacos:
+    image: nacos/nacos-server:v3.1.0
+    container_name: nacos
+    environment:
+      - MODE=standalone
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+    networks:
+      - course-network
+    restart: unless-stopped
+
   # 课程目录数据库
   catalog-db:
     image: mysql:8.0
@@ -73,6 +86,8 @@ services:
     depends_on:
       catalog-db:
         condition: service_healthy
+      nacos:
+        condition: service_started
     networks:
       - course-network
     restart: unless-stopped
@@ -88,12 +103,13 @@ services:
       DB_URL: jdbc:mysql://enrollment-db:3306/enrollment_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       DB_USERNAME: enrollment_user
       DB_PASSWORD: enrollment_pass
-      CATALOG_SERVICE_URL: http://catalog-service:8081
     ports:
       - "8082:8082"
     depends_on:
       enrollment-db:
         condition: service_healthy
+      nacos:
+        condition: service_started
       catalog-service:
         condition: service_started
     networks:

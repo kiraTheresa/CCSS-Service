@@ -30,7 +30,32 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
+  
+  # Nacos Discovery 配置
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        namespace: dev
+        group: COURSEHUB_GROUP
+        ephemeral: true
+        heart-beat-interval: 5000
+        heart-beat-timeout: 15000
 
-# 服务间通信配置
+# 健康检查配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+  health:
+    nacos:
+      discovery:
+        enabled: true
+
+# 服务间通信配置（保留但会通过服务发现使用）
 catalog-service:
   url: http://localhost:8081
