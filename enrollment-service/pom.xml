@@ -12,22 +12,25 @@
     <!-- Spring Cloud 和 Spring Cloud Alibaba 依赖管理 -->
     <dependencyManagement>
         <dependencies>
+            <!-- 使用 Spring Cloud 2024.0.x (Moorgate) 稳定版本 -->
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
-                <version>2024.0.5</version>
+                <version>2024.0.1</version> <!-- 推荐 2024.0.1 (或 2024.0.0) -->
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- 使用 Spring Cloud Alibaba 最新稳定 / preview 版本 -->
             <dependency>
                 <groupId>com.alibaba.cloud</groupId>
                 <artifactId>spring-cloud-alibaba-dependencies</artifactId>
-                <version>2024.0.0.0</version>
+                <version>2025.0.0.0-preview</version> <!-- 或者 2023.0.1.0 等稳定版本 -->
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
+
 
     <groupId>com.zjgsu.ms.hxy</groupId>
     <artifactId>enrollment-service</artifactId>
