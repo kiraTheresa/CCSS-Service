@@ -14,12 +14,13 @@ services:
     image: nacos/nacos-server:v3.1.0
     container_name: nacos
     # 他的认证很麻烦
+    # nacos/nacos-server     v3.1.0  
     environment:
       - MODE=standalone
       - NACOS_AUTH_ENABLE=false
       - NACOS_AUTH_IDENTITY_KEY=dummy
       - NACOS_AUTH_IDENTITY_VALUE=dummy
-      - NACOS_AUTH_TOKEN=your-base64-encoded-token-here
+      # ❗ token 不要写，必须删除
     ports:
       - "8848:8848"
       - "9848:9848"
